@@ -34,7 +34,7 @@ public class DailyReport {
     @ElementCollection
     @CollectionTable(name = "comments", joinColumns = @JoinColumn(name = "daily_report_id"))
     @Column(name = "comment", columnDefinition = "TEXT")
-    private List<String> comments; // Replaced String[] with List<String>
+    private List<String> comments;
 
     // Default constructor
     public DailyReport() {}
