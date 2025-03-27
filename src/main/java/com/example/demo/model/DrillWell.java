@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 @Entity
 @Table(name = "drilling_well")
 public class DrillWell {
@@ -32,8 +34,11 @@ public class DrillWell {
     @Column(nullable = false)
     private String type;
 
-    @OneToMany(mappedBy = "drillingWell")
-    private List<Stage> stages;
+
+
+    @OneToMany(mappedBy = "drillingWell", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference  // Manages serialization and prevents recursion
+    private List<Planning> plannings;
 
     // Constructor
     public DrillWell() {}
@@ -110,11 +115,11 @@ public class DrillWell {
         this.type = type;
     }
 
-    public List<Stage> getStages() {
-        return stages;
+    public List<Planning> getPlannings() {
+        return plannings;
     }
 
-    public void setStages(List<Stage> stages) {
-        this.stages = stages;
+    public void setPlannings(List<Planning> plannings) {
+        this.plannings = plannings;
     }
 }

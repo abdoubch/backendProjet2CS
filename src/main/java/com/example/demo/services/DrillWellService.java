@@ -40,7 +40,7 @@ public class DrillWellService {
                     existingWell.setStatus(newDrillWell.getStatus());
                     existingWell.setTotalCost(newDrillWell.getTotalCost());
                     existingWell.setType(newDrillWell.getType());
-                    existingWell.setStages(newDrillWell.getStages());
+                    existingWell.setPlannings(newDrillWell.getPlannings());
                     return drillWellRepository.save(existingWell);
                 })
                 .orElseGet(() -> {
