@@ -44,4 +44,10 @@ public class PlanningController {
         return planningService.deletePlanning(id) ? ResponseEntity.noContent().build()
                 : ResponseEntity.notFound().build();
     }
+    
+    @GetMapping("/well/{drillWellId}")
+    public ResponseEntity<List<Planning>> getPlanningsByDrillWell(@PathVariable int drillWellId) {
+        List<Planning> plannings = planningService.getPlanningsByDrillWellId(drillWellId);
+        return ResponseEntity.ok(plannings);
+    }
 }

@@ -24,6 +24,11 @@ public class DailyReportService {
     @Autowired
     private DrillWellRepository drillWellRepository; // Add DrillWellRepository to find DrillWell by ID
 
+
+    public DailyReport createDailyReport(DailyReport dailyReport) {
+        return dailyReportRepository.save(dailyReport);
+    }
+
     public List<DailyReport> importFromExcel(MultipartFile file, int drillWellId) throws IOException {
         List<DailyReport> reports = new ArrayList<>();
 

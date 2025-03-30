@@ -1,8 +1,11 @@
 package com.example.demo.controllers;
 
 import com.example.demo.model.DrillWell;
+import com.example.demo.model.Planning;
+import com.example.demo.repository.DrillWellRepository;
 import com.example.demo.services.DrillWellService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +18,26 @@ public class DrillWellController {
 
     @Autowired
     private DrillWellService drillWellService;
+
+    @Autowired
+    private DrillWellRepository drillWellRepository;
+
+
+    @PostMapping("/{drillWellId}/plannings")
+    public ResponseEntity<?> addPlanningToDrillWell(@PathVariable Integer drillWellId, @RequestBody Planning planning) {
+        Optional<DrillWell> optionalDrillWell = drillWellRepository.findById(drillWellId);
+
+        if (optionalDrillWell.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("DrillWell not found");
+        }
+
+        DrillWell drillWell = optionalDrillWell.get();
+        drillWell.addPlanning(planning); // ✅ Correctly sets the relationship
+        drillWellRepository.save(drillWell);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(planning);
+    }
+ 
 
     @GetMapping
     public List<DrillWell> getAllDrillWells() {

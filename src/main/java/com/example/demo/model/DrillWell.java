@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -38,10 +39,17 @@ public class DrillWell {
 
     @OneToMany(mappedBy = "drillingWell", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference  // Manages serialization and prevents recursion
-    private List<Planning> plannings;
+    private List<Planning> plannings ;
+
+    public void addPlanning(Planning planning) {
+        this.plannings.add(planning);
+        planning.setDrillingWell(this);
+    }
 
     // Constructor
     public DrillWell() {}
+
+    
 
     public DrillWell(String location, LocalDate startDate, String status, String type) {
         this.location = location;

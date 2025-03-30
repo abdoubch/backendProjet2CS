@@ -18,6 +18,13 @@ public class DailyReportController {
     @Autowired
     private DailyReportService dailyReportService;
 
+    // Endpoint to create a new Daily Report
+    @PostMapping
+    public ResponseEntity<DailyReport> createDailyReport(@RequestBody DailyReport dailyReport) {
+        DailyReport createdReport = dailyReportService.createDailyReport(dailyReport);
+        return new ResponseEntity<>(createdReport, HttpStatus.CREATED);
+    }
+
     // Endpoint to import Daily Reports from Excel file
     @PostMapping("/import")
     public ResponseEntity<?> importDailyReports(@RequestParam("file") MultipartFile file,@RequestParam("drillWellId") int drillWellId) {

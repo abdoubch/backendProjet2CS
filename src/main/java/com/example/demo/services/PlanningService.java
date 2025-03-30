@@ -46,4 +46,9 @@ public class PlanningService {
         }
         return false;
     }
+
+    public List<Planning> getPlanningsByDrillWellId(int drillWellId) {
+        return planningRepository.findByDrillingWellId(drillWellId);
+    }
+    
 }
