@@ -24,7 +24,6 @@ public class DailyReportService {
     @Autowired
     private DrillWellRepository drillWellRepository; // Add DrillWellRepository to find DrillWell by ID
 
-
     public DailyReport createDailyReport(DailyReport dailyReport) {
         return dailyReportRepository.save(dailyReport);
     }
@@ -37,7 +36,7 @@ public class DailyReportService {
                 .orElseThrow(() -> new IllegalArgumentException("DrillWell not found for ID: " + drillWellId));
 
         Workbook workbook = WorkbookFactory.create(file.getInputStream());
-        Sheet sheet = workbook.getSheetAt(0);  // Assume data is on the first sheet
+        Sheet sheet = workbook.getSheetAt(0); // Assume data is on the first sheet
         Sheet sheetCost = workbook.getSheetAt(1);
         DailyReport report = new DailyReport();
 
@@ -48,8 +47,8 @@ public class DailyReportService {
 
         // WorkDone: Stop on null or blank string
         List<String> workDoneList = new ArrayList<>();
-        for (int i = 21; i <= 42; i++) {  // Adjust the row indexes to match your data
-            Cell workDoneCell = sheet.getRow(i).getCell(8);
+        for (int i = 21; i <= 42; i++) { // Adjust the row indexes to match your data
+            Cell workDoneCell = sheet.getRow(i).getCell(14);
             if (workDoneCell != null && workDoneCell.getCellType() == CellType.STRING) {
                 workDoneList.add(workDoneCell.getStringCellValue().trim());
             }
@@ -58,7 +57,7 @@ public class DailyReportService {
 
         // Comments: Stop on null or blank string
         List<String> commentsList = new ArrayList<>();
-        for (int i = 45; i <= 56; i++) {  // Adjust the row indexes to match your data
+        for (int i = 45; i <= 56; i++) { // Adjust the row indexes to match your data
             Cell commentsCell = sheet.getRow(i).getCell(1);
             if (commentsCell != null && commentsCell.getCellType() == CellType.STRING) {
                 commentsList.add(commentsCell.getStringCellValue().trim());
@@ -68,9 +67,11 @@ public class DailyReportService {
 
         // Set other fields as needed (example: totalCost, totalDuration, etc.)
         // Example:
-        report.setReportDate(LocalDate.now());  // Example of setting report date
-        report.setTotalCost(BigDecimal.valueOf(sheetCost.getRow(85).getCell(6).getNumericCellValue()));  // Example of setting total cost
-        report.setTotalDuration(8);  // Example of setting total duration
+        report.setReportDate(LocalDate.now()); // Example of setting report date
+        report.setTotalCost(BigDecimal.valueOf(sheetCost.getRow(85).getCell(6).getNumericCellValue())); // Example of
+                                                                                                        // setting total
+                                                                                                        // cost
+        report.setTotalDuration(8); // Example of setting total duration
 
         // Add the report to the list
         reports.add(report);
