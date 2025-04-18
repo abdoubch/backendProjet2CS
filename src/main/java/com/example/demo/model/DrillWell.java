@@ -10,7 +10,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
-@Table(name = "drilling_well")
+@Table(name = "drilling_well",schema = "SYSTEM")
 public class DrillWell {
 
     @Id

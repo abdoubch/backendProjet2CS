@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Entity
-@Table(name = "daily_report")
+@Table(name = "daily_report",schema = "SYSTEM")
 public class DailyReport {
 
     @Id
@@ -26,14 +26,14 @@ public class DailyReport {
 
     @ElementCollection
     @CollectionTable(name = "work_done", joinColumns = @JoinColumn(name = "daily_report_id"))
-    @Column(name = "work_done", columnDefinition = "TEXT")
+    @Column(name = "work_done", columnDefinition = "CLOB")
     private List<String> workDone; // Replaced String[] with List<String>
 
     private boolean issuesReported;
 
     @ElementCollection
-    @CollectionTable(name = "comments", joinColumns = @JoinColumn(name = "daily_report_id"))
-    @Column(name = "comment", columnDefinition = "TEXT")
+    @CollectionTable(name = "comments_drillwell", joinColumns = @JoinColumn(name = "daily_report_id"))
+    @Column(name = "comment_drillwell", columnDefinition = "CLOB")
     private List<String> comments;
 
     // Default constructor

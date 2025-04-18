@@ -6,11 +6,12 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "planning")
+@Table(name = "planning_well", schema = "SYSTEM")
 public class Planning {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "planning_seq")
+    @SequenceGenerator(name = "planning_seq", sequenceName = "PLANNING_SEQ", allocationSize = 1)
     private int id;
 
     @ManyToOne
@@ -29,7 +30,7 @@ public class Planning {
     private BigDecimal plannedCost;
     private BigDecimal actualCost;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "CLOB")
     private String description;
 
     // Default Constructor
