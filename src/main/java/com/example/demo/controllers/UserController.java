@@ -1,8 +1,10 @@
 package com.example.demo.controllers;
 
 
+import com.example.demo.dto.LoginRequest;
 import com.example.demo.model.User;
 import com.example.demo.services.UserService;
+import com.example.demo.services.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,7 +21,7 @@ public class UserController {
 
     private final AuthenticationManager authenticationManager;
     @Autowired
-    private UserService userService;
+    private UserServiceImpl userService;
 
     public UserController(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
@@ -53,6 +55,12 @@ public class UserController {
         return ResponseEntity.ok("Utilisateur supprimé");
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        return userService.login(loginRequest.getEmail(), loginRequest.getMotDePasse())
+                .map(user -> ResponseEntity.ok("Connexion réussie pour " + user.getPrenom()))
+                .orElse(ResponseEntity.status(401).body("Email ou mot de passe incorrect"));
+    }
 
 }
 

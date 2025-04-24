@@ -20,25 +20,21 @@ public class UserServiceImpl implements UserService {
     private RoleRepository roleRepository;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;  // Ajout de PasswordEncoder
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public User enregistrerUtilisateur(User user) {
-        // Vérification de l'existence de l'email
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new RuntimeException("Email déjà utilisé !");
         }
 
-        // Hachage du mot de passe
         String motDePasseHache = passwordEncoder.encode(user.getMotDePasse());
-        user.setMotDePasse(motDePasseHache);  // Stocker le mot de passe haché
-        roleRepository.findAll().forEach(role -> System.out.println(role.getNom()));
-        // Attribution d'un rôle par défaut
+        user.setMotDePasse(motDePasseHache);
+
         Role roleUser = roleRepository.findByNom("ROLE_USER".trim().toUpperCase())
                 .orElseThrow(() -> new RuntimeException("Rôle non trouvé"));
         user.getRoles().add(roleUser);
 
-        // Sauvegarde de l'utilisateur avec le mot de passe haché
         return userRepository.save(user);
     }
 
@@ -55,5 +51,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public void supprimerUtilisateur(Long id) {
         userRepository.deleteById(id);
+    }
+
+    // 🔐 Méthode login simple
+    public Optional<User> login(String email, String motDePasse) {
+        Optional<User> utilisateur = userRepository.findByEmail(email);
+        if (utilisateur.isPresent() && passwordEncoder.matches(motDePasse, utilisateur.get().getMotDePasse())) {
+            return utilisateur;
+        }
+        return Optional.empty();
     }
 }
