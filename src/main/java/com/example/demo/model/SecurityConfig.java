@@ -20,7 +20,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/users/register","/api/users/login").permitAll() // Allow public access to registration
+                        .requestMatchers("/api/users/register","/api/users/login","/api/**").permitAll() // Allow public access to registration
                         .anyRequest().authenticated() // Secure all other endpoints
                 )
                 .csrf(csrf -> csrf.disable()) // Disable CSRF for simplicity (enable for production)
