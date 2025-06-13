@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import java.util.Optional;
 
 import java.io.IOException;
 import java.util.List;
@@ -27,12 +28,14 @@ public class DailyReportController {
 
     // Endpoint to import Daily Reports from Excel file
     @PostMapping("/import")
-    public ResponseEntity<?> importDailyReports(@RequestParam("file") MultipartFile file,@RequestParam("drillWellId") int drillWellId) {
+    public ResponseEntity<?> importDailyReports(@RequestParam("file") MultipartFile file,
+            @RequestParam("drillWellId") int drillWellId) {
         try {
-            List<DailyReport> reports = dailyReportService.importFromExcel(file,drillWellId);
+            List<DailyReport> reports = dailyReportService.importFromExcel(file, drillWellId);
             return new ResponseEntity<>(reports, HttpStatus.OK);
         } catch (IOException e) {
-            return new ResponseEntity<>("Failed to import reports: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Failed to import reports: " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -44,5 +47,17 @@ public class DailyReportController {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(reports, HttpStatus.OK);
+    }
+
+    @GetMapping("/well/{drillWellId}/report/{reportId}")
+    public ResponseEntity<DailyReport> getReportByDrillWellAndId(
+            @PathVariable int drillWellId,
+            @PathVariable int reportId) {
+
+        Optional<DailyReport> optionalReport = dailyReportService.getReportByDrillWellIdAndReportId(drillWellId, reportId);
+
+        return optionalReport
+                .map(report -> new ResponseEntity<>(report, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 }
