@@ -33,6 +33,14 @@ public class DailyReportService {
         return dailyReportRepository.save(dailyReport);
     }
 
+    public DailyReport createReportForDrillWell(int drillWellId, DailyReport report) {
+        DrillWell drillWell = drillWellRepository.findById(drillWellId)
+            .orElseThrow(() -> new RuntimeException("DrillWell not found"));
+
+        report.setDrillingWell(drillWell);
+        return dailyReportRepository.save(report);
+    }
+
     public List<DailyReport> importFromExcel(MultipartFile file, int drillWellId) throws IOException {
         List<DailyReport> reports = new ArrayList<>();
 

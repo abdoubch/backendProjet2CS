@@ -39,6 +39,18 @@ public class DailyReportController {
         }
     }
 
+    @PostMapping("/well/{drillWellId}")
+    public ResponseEntity<DailyReport> createDailyReport(
+            @PathVariable int drillWellId,
+            @RequestBody DailyReport report) {
+        try {
+            DailyReport savedReport = dailyReportService.createReportForDrillWell(drillWellId, report);
+            return new ResponseEntity<>(savedReport, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }   
+
     // Endpoint to get reports by drill well ID
     @GetMapping("/well/{drillWellId}")
     public ResponseEntity<List<DailyReport>> getReportsByDrillWellId(@PathVariable int drillWellId) {
@@ -54,7 +66,8 @@ public class DailyReportController {
             @PathVariable int drillWellId,
             @PathVariable int reportId) {
 
-        Optional<DailyReport> optionalReport = dailyReportService.getReportByDrillWellIdAndReportId(drillWellId, reportId);
+        Optional<DailyReport> optionalReport = dailyReportService.getReportByDrillWellIdAndReportId(drillWellId,
+                reportId);
 
         return optionalReport
                 .map(report -> new ResponseEntity<>(report, HttpStatus.OK))
