@@ -10,7 +10,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
-@Table(name = "drilling_well")
+@Table(name = "drilling_well", schema = "SYSTEM")
 public class DrillWell {
 
     @Id
@@ -35,11 +35,18 @@ public class DrillWell {
     @Column(nullable = false)
     private String type;
 
+    @Column
+    private String wellName; // Nom du puits
 
+    @Column
+    private Integer progress; // Pourcentage de progression (0 à 100)
+
+    @Column
+    private String state; // État synthétique : "À risque", "En retard", etc.
 
     @OneToMany(mappedBy = "drillingWell", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference  // Manages serialization and prevents recursion
-    private List<Planning> plannings ;
+    @JsonManagedReference // Manages serialization and prevents recursion
+    private List<Planning> plannings;
 
     public void addPlanning(Planning planning) {
         this.plannings.add(planning);
@@ -47,9 +54,8 @@ public class DrillWell {
     }
 
     // Constructor
-    public DrillWell() {}
-
-    
+    public DrillWell() {
+    }
 
     public DrillWell(String location, LocalDate startDate, String status, String type) {
         this.location = location;
@@ -130,4 +136,29 @@ public class DrillWell {
     public void setPlannings(List<Planning> plannings) {
         this.plannings = plannings;
     }
+
+    public String getWellName() {
+        return wellName;
+    }
+
+    public void setWellName(String wellName) {
+        this.wellName = wellName;
+    }
+
+    public Integer getProgress() {
+        return progress;
+    }
+
+    public void setProgress(Integer progress) {
+        this.progress = progress;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
 }

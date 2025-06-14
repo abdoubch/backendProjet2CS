@@ -9,11 +9,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Optional;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.Locale;
 
 @Service
 public class DailyReportService {
@@ -26,6 +31,14 @@ public class DailyReportService {
 
     public DailyReport createDailyReport(DailyReport dailyReport) {
         return dailyReportRepository.save(dailyReport);
+    }
+
+    public DailyReport createReportForDrillWell(int drillWellId, DailyReport report) {
+        DrillWell drillWell = drillWellRepository.findById(drillWellId)
+            .orElseThrow(() -> new RuntimeException("DrillWell not found"));
+
+        report.setDrillingWell(drillWell);
+        return dailyReportRepository.save(report);
     }
 
     public List<DailyReport> importFromExcel(MultipartFile file, int drillWellId) throws IOException {
@@ -48,9 +61,30 @@ public class DailyReportService {
         // WorkDone: Stop on null or blank string
         List<String> workDoneList = new ArrayList<>();
         for (int i = 21; i <= 42; i++) { // Adjust the row indexes to match your data
-            Cell workDoneCell = sheet.getRow(i).getCell(14);
+            Cell workDoneCell = sheet.getRow(i).getCell(8);
+            Cell startTimeCell = sheet.getRow(i).getCell(1);
+            Cell endTimeCell = sheet.getRow(i).getCell(5);
             if (workDoneCell != null && workDoneCell.getCellType() == CellType.STRING) {
-                workDoneList.add(workDoneCell.getStringCellValue().trim());
+                String description = workDoneCell.getStringCellValue().trim();
+                String startTime = "";
+                String endTime = "";
+                if (startTimeCell != null) {
+                    if (startTimeCell.getCellType() == CellType.STRING) {
+                        startTime = startTimeCell.getStringCellValue().trim();
+                    } else if (startTimeCell.getCellType() == CellType.NUMERIC) {
+                        startTime = startTimeCell.getLocalDateTimeCellValue().toLocalTime().toString(); // or use
+                                                                                                        // formatter
+                    }
+                }
+                if (endTimeCell != null) {
+                    if (endTimeCell.getCellType() == CellType.STRING) {
+                        endTime = endTimeCell.getStringCellValue().trim();
+                    } else if (endTimeCell.getCellType() == CellType.NUMERIC) {
+                        endTime = endTimeCell.getLocalDateTimeCellValue().toLocalTime().toString(); // or use formatter
+                    }
+                }
+                String entry = (startTime + " - " + endTime + ": " + description).trim();
+                workDoneList.add(entry);
             }
         }
         report.setWorkDone(workDoneList);
@@ -65,13 +99,176 @@ public class DailyReportService {
         }
         report.setComments(commentsList);
 
+        Cell bitSizeCell = sheet.getRow(9).getCell(12); // M10
+        String phaseName = "Phase inconnue";
+
+        if (bitSizeCell != null) {
+            String cellContent = "";
+
+            if (bitSizeCell.getCellType() == CellType.NUMERIC) {
+                cellContent = String.valueOf((int) bitSizeCell.getNumericCellValue());
+            } else if (bitSizeCell.getCellType() == CellType.STRING) {
+                cellContent = bitSizeCell.getStringCellValue().trim();
+            }
+
+            // Normalize: remove special characters (like " or ')
+            cellContent = cellContent.replaceAll("[^0-9]", "");
+
+            // Check for digits and assign phase
+            if (cellContent.contains("26") || cellContent.contains("20")) {
+                phaseName = "26\" x 20\" inches";
+            } else if (cellContent.contains("16") || cellContent.contains("13")) {
+                phaseName = "16\" x 13\" inches";
+            } else if (cellContent.contains("12") || cellContent.contains("9")) {
+                phaseName = "12\" x 9\" inches";
+            } else if (cellContent.contains("8") || cellContent.contains("7") || cellContent.contains("6")) {
+                phaseName = "8\" x 7\" inches";
+            }
+        }
+
+        report.setPhaseName(phaseName);
+
         // Set other fields as needed (example: totalCost, totalDuration, etc.)
         // Example:
         report.setReportDate(LocalDate.now()); // Example of setting report date
-        report.setTotalCost(BigDecimal.valueOf(sheetCost.getRow(85).getCell(6).getNumericCellValue())); // Example of
-                                                                                                        // setting total
-                                                                                                        // cost
+        // report.setTotalCost(BigDecimal.valueOf(sheetCost.getRow(85).getCell(6).getNumericCellValue()));
+        // // Example of
+        // setting total
+        // cost
         report.setTotalDuration(8); // Example of setting total duration
+
+        /* */
+        Row row = sheet.getRow(5); // Row 6
+
+        if (row != null) {
+            // Extract depth from U6 (column 20)
+
+            Cell depthCell = row.getCell(20);
+            if (depthCell != null) {
+                if (depthCell.getCellType() == CellType.NUMERIC) {
+                    report.setDepth(String.valueOf((int) depthCell.getNumericCellValue()));
+                } else if (depthCell.getCellType() == CellType.STRING) {
+                    String text = depthCell.getStringCellValue().replaceAll("[^\\d]", "");
+                    if (!text.isEmpty())
+                        report.setDepth((text));
+                }
+            }
+
+            // Extract progress from AW6 (column 48)
+            Cell progressValueCell = row.getCell(48);
+            Cell timeSpentCell = row.getCell(57);// BF6
+            String progressStr = "";
+            if (progressValueCell != null && timeSpentCell != null) {
+                String progressFeet = "";
+                String timeHours = "";
+                // Extract progress in ft (AW6)
+                if (progressValueCell.getCellType() == CellType.NUMERIC) {
+                    progressFeet = String.valueOf((int) progressValueCell.getNumericCellValue());
+                } else if (progressValueCell.getCellType() == CellType.STRING) {
+                    String digits = progressValueCell.getStringCellValue().replaceAll("[^\\d]", "");
+                    if (!digits.isEmpty())
+                        progressFeet = digits;
+                }
+
+                // Extract time spent in h (BF6)
+                if (timeSpentCell.getCellType() == CellType.NUMERIC) {
+                    timeHours = String.valueOf((int) timeSpentCell.getNumericCellValue());
+                } else if (timeSpentCell.getCellType() == CellType.STRING) {
+                    String digits = timeSpentCell.getStringCellValue().replaceAll("[^\\d]", "");
+                    if (!digits.isEmpty())
+                        timeHours = digits;
+                }
+
+                if (!progressFeet.isEmpty() && !timeHours.isEmpty()) {
+                    progressStr = progressFeet + " ft in " + timeHours + "h";
+                    report.setProgress(progressStr); // ✅ assuming report has a String field "progress"
+                }
+
+            }
+
+        }
+
+        // CJ58: row 57, column 86 (daily cost)
+        Row row58 = sheet.getRow(57); // row index for Excel row 58
+        Cell dailyCostCell = row58 != null ? row58.getCell(87) : null;
+
+        // CJ59: row 58, column 86 (cumulative cost)
+        Row row59 = sheet.getRow(58); // row index for Excel row 59
+        Cell cumulativeCostCell = row59 != null ? row59.getCell(87) : null;
+
+        BigDecimal dailyCost = BigDecimal.ZERO;
+        BigDecimal cumulativeCost = BigDecimal.ZERO;
+
+        if (cumulativeCostCell != null) {
+            if (cumulativeCostCell.getCellType() == CellType.NUMERIC) {
+                cumulativeCost = BigDecimal.valueOf(cumulativeCostCell.getNumericCellValue());
+            } else if (cumulativeCostCell.getCellType() == CellType.STRING) {
+                String raw = cumulativeCostCell.getStringCellValue().trim();
+                raw = raw.replace(" ", "").replace(",", "."); // Normalize
+                try {
+                    cumulativeCost = new BigDecimal(raw);
+                } catch (NumberFormatException e) {
+                    System.err.println("Could not parse cumulative cost: " + raw);
+                }
+            }
+        }
+
+        if (dailyCostCell != null) {
+            if (dailyCostCell.getCellType() == CellType.NUMERIC) {
+                dailyCost = BigDecimal.valueOf(dailyCostCell.getNumericCellValue());
+            } else if (dailyCostCell.getCellType() == CellType.STRING) {
+                String raw = dailyCostCell.getStringCellValue().trim();
+                raw = raw.replace(" ", "").replace(",", "."); // Normalize to dot format
+                try {
+                    dailyCost = new BigDecimal(raw);
+                } catch (NumberFormatException e) {
+                    System.err.println("Could not parse daily cost: " + raw);
+                }
+            }
+        }
+
+        Row row61 = sheet.getRow(60); // row index for Excel row 58
+        Cell plannedDayCell = row61.getCell(68);
+
+        Row row62 = sheet.getRow(61); // row index for Excel row 59
+        Cell actualDayCell = row62.getCell(68);
+
+        BigDecimal actualday = BigDecimal.ZERO;
+        BigDecimal plannedday = BigDecimal.ZERO;
+
+        if (plannedDayCell != null) {
+            if (plannedDayCell.getCellType() == CellType.NUMERIC) {
+                plannedday = BigDecimal.valueOf(plannedDayCell.getNumericCellValue());
+            } else if (plannedDayCell.getCellType() == CellType.STRING) {
+                String raw = plannedDayCell.getStringCellValue().trim();
+                raw = raw.replace(" ", "").replace(",", "."); // Normalize
+                try {
+                    plannedday = new BigDecimal(raw);
+                } catch (NumberFormatException e) {
+                    System.err.println("Could not parse cumulative cost: " + raw);
+                }
+            }
+        }
+
+        if (actualDayCell != null) {
+            if (actualDayCell.getCellType() == CellType.NUMERIC) {
+                actualday = BigDecimal.valueOf(actualDayCell.getNumericCellValue());
+            } else if (actualDayCell.getCellType() == CellType.STRING) {
+                String raw = actualDayCell.getStringCellValue().trim();
+                raw = raw.replace(" ", "").replace(",", "."); // Normalize to dot format
+                try {
+                    actualday = new BigDecimal(raw);
+                } catch (NumberFormatException e) {
+                    System.err.println("Could not parse daily cost: " + raw);
+                }
+            }
+        }
+
+        // Assign to report
+        report.setDailyCost(dailyCost); // Assume report has a String field for dailyCost
+        report.setTotalCost(cumulativeCost);
+        report.setActualDay(actualday);
+        report.setPlannedDay(plannedday);
 
         // Add the report to the list
         reports.add(report);
@@ -82,5 +279,9 @@ public class DailyReportService {
 
     public List<DailyReport> getReportsByDrillWellId(int drillWellId) {
         return dailyReportRepository.findByDrillingWellId(drillWellId);
+    }
+
+    public Optional<DailyReport> getReportByDrillWellIdAndReportId(int drillWellId, int reportId) {
+        return dailyReportRepository.findByIdAndDrillingWellId(reportId, drillWellId);
     }
 }
