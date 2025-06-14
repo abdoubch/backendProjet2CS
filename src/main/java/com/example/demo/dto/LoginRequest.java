@@ -1,5 +1,7 @@
 package com.example.demo.dto;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
+
 
 public class LoginRequest {
     private String email;
