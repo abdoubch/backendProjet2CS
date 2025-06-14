@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+
 import com.example.demo.dto.LoginRequest;
 import com.example.demo.model.User;
 import com.example.demo.services.UserService;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
+@CrossOrigin(origins = "http://localhost:5173/**")
 public class UserController {
 
     private final AuthenticationManager authenticationManager;

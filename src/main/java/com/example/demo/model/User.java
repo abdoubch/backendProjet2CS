@@ -24,13 +24,7 @@ public class User {
 
     private LocalDate dateInscription = LocalDate.now();
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private Set<Role> roles = new HashSet<>();
+    private String role;
 
     // Getters et Setters
 
@@ -82,11 +76,4 @@ public class User {
         this.dateInscription = dateInscription;
     }
 
-    public Set<Role> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
-    }
 }

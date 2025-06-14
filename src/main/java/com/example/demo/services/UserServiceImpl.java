@@ -31,9 +31,9 @@ public class UserServiceImpl implements UserService {
         String motDePasseHache = passwordEncoder.encode(user.getMotDePasse());
         user.setMotDePasse(motDePasseHache);
 
-        Role roleUser = roleRepository.findByNom("ROLE_USER".trim().toUpperCase())
-                .orElseThrow(() -> new RuntimeException("Rôle non trouvé"));
-        user.getRoles().add(roleUser);
+//        Role roleUser = roleRepository.findByNom("ROLE_USER".trim().toUpperCase())
+//                .orElseThrow(() -> new RuntimeException("Rôle non trouvé"));
+//        user.getRoles().add(roleUser);
 
         return userRepository.save(user);
     }
