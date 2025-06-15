@@ -40,7 +40,22 @@ public class DrillWellService {
                     existingWell.setStatus(newDrillWell.getStatus());
                     existingWell.setTotalCost(newDrillWell.getTotalCost());
                     existingWell.setType(newDrillWell.getType());
-                    existingWell.setPlannings(newDrillWell.getPlannings());
+                    existingWell.setActualDay(newDrillWell.getActualDay());
+                    existingWell.setActualDay1(newDrillWell.getActualDay1());
+                    existingWell.setActualDay2(newDrillWell.getActualDay2());
+                    existingWell.setActualDay3(newDrillWell.getActualDay3());
+                    existingWell.setActualDay4(newDrillWell.getActualDay4());
+                    existingWell.setTotalCost(newDrillWell.getTotalCost());
+                    existingWell.setCumulativeCost1(newDrillWell.getCumulativeCost1());
+                    existingWell.setCumulativeCost2(newDrillWell.getCumulativeCost2());
+                    existingWell.setCumulativeCost3(newDrillWell.getCumulativeCost3());
+                    existingWell.setCumulativeCost4(newDrillWell.getCumulativeCost4());
+                    existingWell.setDepth(newDrillWell.getDepth());
+                    existingWell.setDepth1(newDrillWell.getDepth1());
+                    existingWell.setDepth2(newDrillWell.getDepth2());
+                    existingWell.setDepth3(newDrillWell.getDepth3());
+                    existingWell.setDepth4(newDrillWell.getDepth4());
+                    existingWell.setPhaseId(newDrillWell.getPhaseId());
                     return drillWellRepository.save(existingWell);
                 })
                 .orElseGet(() -> {
@@ -49,5 +64,3 @@ public class DrillWellService {
                 });
     }
 }
-
-

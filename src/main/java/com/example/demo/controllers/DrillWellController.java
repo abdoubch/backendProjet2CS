@@ -5,7 +5,7 @@ import com.example.demo.model.DrillWell;
 import com.example.demo.services.DrillWellService;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,6 +40,7 @@ public class DrillWellController {
         DrillWell updatedDrillWell = drillWellService.updateDrillWell(id, drillWell);
         return ResponseEntity.ok(updatedDrillWell);
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDrillWell(@PathVariable int id) {
