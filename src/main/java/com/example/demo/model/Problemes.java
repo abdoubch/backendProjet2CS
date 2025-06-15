@@ -34,7 +34,8 @@ public class Problemes {
     private int gravite; // Gravité du problème, de 1 à 3
 
     // Constructors
-    public Problemes() {}
+    public Problemes() {
+    }
 
     public Problemes(String name, String type, DailyReport dailyReport, List<String> solutions, int gravite) {
         this.name = name;
@@ -45,21 +46,51 @@ public class Problemes {
     }
 
     // Getters and Setters
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
+    public String getName() {
+        return name;
+    }
 
-    public DailyReport getDailyReport() { return dailyReport; }
-    public void setDailyReport(DailyReport dailyReport) { this.dailyReport = dailyReport; }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public List<String> getSolutions() { return solutions; }
-    public void setSolutions(List<String> solutions) { this.solutions = solutions; }
+    public String getType() {
+        return type;
+    }
 
-    public int getGravite() { return gravite; }
-    public void setGravite(int gravite) { this.gravite = gravite; }
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public DailyReport getDailyReport() {
+        return dailyReport;
+    }
+
+    public void setDailyReport(DailyReport dailyReport) {
+        this.dailyReport = dailyReport;
+    }
+
+    public List<String> getSolutions() {
+        return solutions;
+    }
+
+    public void setSolutions(List<String> solutions) {
+        this.solutions = solutions;
+    }
+
+    public int getGravite() {
+        return gravite;
+    }
+
+    public void setGravite(int gravite) {
+        this.gravite = gravite;
+    }
 }

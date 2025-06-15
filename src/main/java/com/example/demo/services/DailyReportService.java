@@ -33,9 +33,13 @@ public class DailyReportService {
         return dailyReportRepository.save(dailyReport);
     }
 
+    public List<DailyReport> getReportsByDrillWellAndPhase(int wellId, int phaseId) {
+        return dailyReportRepository.findByDrillingWellIdAndPhaseId(wellId, phaseId);
+    }
+
     public DailyReport createReportForDrillWell(int drillWellId, DailyReport report) {
         DrillWell drillWell = drillWellRepository.findById(drillWellId)
-            .orElseThrow(() -> new RuntimeException("DrillWell not found"));
+                .orElseThrow(() -> new RuntimeException("DrillWell not found"));
 
         report.setDrillingWell(drillWell);
         return dailyReportRepository.save(report);
@@ -50,7 +54,6 @@ public class DailyReportService {
 
         Workbook workbook = WorkbookFactory.create(file.getInputStream());
         Sheet sheet = workbook.getSheetAt(0); // Assume data is on the first sheet
-        Sheet sheetCost = workbook.getSheetAt(1);
         DailyReport report = new DailyReport();
 
         // Set the DrillWell to associate it with the report
@@ -101,6 +104,7 @@ public class DailyReportService {
 
         Cell bitSizeCell = sheet.getRow(9).getCell(12); // M10
         String phaseName = "Phase inconnue";
+        Integer phaseId = 0;
 
         if (bitSizeCell != null) {
             String cellContent = "";
@@ -117,16 +121,21 @@ public class DailyReportService {
             // Check for digits and assign phase
             if (cellContent.contains("26") || cellContent.contains("20")) {
                 phaseName = "26\" x 20\" inches";
+                phaseId = 1;
             } else if (cellContent.contains("16") || cellContent.contains("13")) {
                 phaseName = "16\" x 13\" inches";
+                phaseId = 2;
             } else if (cellContent.contains("12") || cellContent.contains("9")) {
                 phaseName = "12\" x 9\" inches";
+                phaseId = 3;
             } else if (cellContent.contains("8") || cellContent.contains("7") || cellContent.contains("6")) {
                 phaseName = "8\" x 7\" inches";
+                phaseId = 4;
             }
         }
 
         report.setPhaseName(phaseName);
+        report.setPhaseId(phaseId);
 
         // Set other fields as needed (example: totalCost, totalDuration, etc.)
         // Example:
@@ -139,6 +148,7 @@ public class DailyReportService {
 
         /* */
         Row row = sheet.getRow(5); // Row 6
+        String depth = "";
 
         if (row != null) {
             // Extract depth from U6 (column 20)
@@ -149,6 +159,7 @@ public class DailyReportService {
                     report.setDepth(String.valueOf((int) depthCell.getNumericCellValue()));
                 } else if (depthCell.getCellType() == CellType.STRING) {
                     String text = depthCell.getStringCellValue().replaceAll("[^\\d]", "");
+                    depth = text;
                     if (!text.isEmpty())
                         report.setDepth((text));
                 }
@@ -272,6 +283,51 @@ public class DailyReportService {
 
         // Add the report to the list
         reports.add(report);
+
+        drillWell.setTotalCost(cumulativeCost);
+        if (depth != "") {
+            drillWell.setDepth(depth);
+        }
+        drillWell.setActualDay(actualday);
+        switch (phaseId) {
+            case 0:
+                break;
+            case 1:
+                drillWell.setCumulativeCost1(cumulativeCost);
+                drillWell.setActualDay1(actualday);
+                drillWell.setPhaseId(phaseId);
+                if (depth != "") {
+                    drillWell.setDepth1(depth);
+                }
+                break;
+            case 2:
+                drillWell.setCumulativeCost2(cumulativeCost);
+                drillWell.setActualDay2(actualday);
+                drillWell.setPhaseId(phaseId);
+
+                if (depth != "") {
+                    drillWell.setDepth2(depth);
+                }
+                break;
+            case 3:
+                drillWell.setCumulativeCost3(cumulativeCost);
+                drillWell.setActualDay3(actualday);
+                drillWell.setPhaseId(phaseId);
+
+                if (depth != "") {
+                    drillWell.setDepth3(depth);
+                }
+                break;
+            case 4:
+                drillWell.setCumulativeCost4(cumulativeCost);
+                drillWell.setActualDay4(actualday);
+                drillWell.setPhaseId(phaseId);
+                if (depth != "") {
+                    drillWell.setDepth4(depth);
+                }
+                break;
+        }
+        drillWellRepository.save(drillWell);
 
         // Save all reports to the database
         return dailyReportRepository.saveAll(reports);

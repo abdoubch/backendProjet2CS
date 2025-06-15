@@ -26,6 +26,8 @@ public class DailyReport {
 
     private String depth;
 
+    private Integer phaseId;
+
     private String phaseName;
 
     private String progress;
@@ -173,6 +175,14 @@ public class DailyReport {
 
     public String getProgress() {
         return progress;
+    }
+
+    public Integer getPhaseId() {
+        return phaseId;
+    }
+
+    public void setPhaseId(Integer phaseId) {
+        this.phaseId = phaseId;
     }
 
     public void setProgress(String progress) {

@@ -73,4 +73,18 @@ public class DailyReportController {
                 .map(report -> new ResponseEntity<>(report, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
+
+    @GetMapping("/well/{wellId}/phase/{phaseId}")
+    public ResponseEntity<List<DailyReport>> getReportsByWellAndPhase(
+            @PathVariable int wellId,
+            @PathVariable int phaseId) {
+        
+        List<DailyReport> reports = dailyReportService.getReportsByDrillWellAndPhase(wellId, phaseId);
+        
+        if (reports.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+
+        return new ResponseEntity<>(reports, HttpStatus.OK);
+    }
 }
