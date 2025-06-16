@@ -276,18 +276,27 @@ public class DailyReportService {
         }
 
         // Assign to report
+        if (cumulativeCost.compareTo(drillWell.getTotalCost()) > 0) {
+            drillWell.setTotalCost(cumulativeCost);
+        }
         report.setDailyCost(dailyCost); // Assume report has a String field for dailyCost
-        report.setTotalCost(cumulativeCost);
         report.setActualDay(actualday);
         report.setPlannedDay(plannedday);
 
         // Add the report to the list
         reports.add(report);
+        double depthVal = Double.parseDouble(depth);
+        double cumDepthVal = Double.parseDouble(drillWell.getPlannedDepth4());
 
-        drillWell.setTotalCost(cumulativeCost);
+        double ratio = depthVal / cumDepthVal;
+        int progress = (int) Math.floor(Math.min(ratio, 1.0) * 100);
+
+        drillWell.setProgress(progress);
+
         if (depth != "") {
             drillWell.setDepth(depth);
         }
+
         drillWell.setActualDay(actualday);
         switch (phaseId) {
             case 0:
@@ -299,6 +308,13 @@ public class DailyReportService {
                 if (depth != "") {
                     drillWell.setDepth1(depth);
                 }
+                if (cumulativeCost.compareTo(drillWell.getPlannedCost1()) > 0) {
+                    drillWell.setStatus("At Risk");
+                }
+                if (actualday.compareTo(drillWell.getPlannedDay1()) > 0) {
+                    drillWell.setStatus("Delayed");
+                }
+
                 break;
             case 2:
                 drillWell.setCumulativeCost2(cumulativeCost);
@@ -307,6 +323,12 @@ public class DailyReportService {
 
                 if (depth != "") {
                     drillWell.setDepth2(depth);
+                }
+                if (cumulativeCost.compareTo(drillWell.getPlannedCost2()) > 0) {
+                    drillWell.setStatus("At risk");
+                }
+                if (actualday.compareTo(drillWell.getPlannedDay2()) > 0) {
+                    drillWell.setStatus("Delayed");
                 }
                 break;
             case 3:
@@ -317,6 +339,12 @@ public class DailyReportService {
                 if (depth != "") {
                     drillWell.setDepth3(depth);
                 }
+                if (cumulativeCost.compareTo(drillWell.getPlannedCost3()) > 0) {
+                    drillWell.setStatus("At risk");
+                }
+                if (actualday.compareTo(drillWell.getPlannedDay3()) > 0) {
+                    drillWell.setStatus("Delayed");
+                }
                 break;
             case 4:
                 drillWell.setCumulativeCost4(cumulativeCost);
@@ -325,7 +353,17 @@ public class DailyReportService {
                 if (depth != "") {
                     drillWell.setDepth4(depth);
                 }
+                if (cumulativeCost.compareTo(drillWell.getPlannedCost4()) > 0) {
+                    drillWell.setStatus("At risk");
+                }
+                if (actualday.compareTo(drillWell.getPlannedDay4()) > 0) {
+                    drillWell.setStatus("Delayed");
+                }
                 break;
+        }
+
+        if (progress >= 100) {
+            drillWell.setStatus("Completed");
         }
         drillWellRepository.save(drillWell);
 
@@ -339,5 +377,9 @@ public class DailyReportService {
 
     public Optional<DailyReport> getReportByDrillWellIdAndReportId(int drillWellId, int reportId) {
         return dailyReportRepository.findByIdAndDrillingWellId(reportId, drillWellId);
+    }
+
+    public void deleteAllReportsByDrillWellId(int drillWellId) {
+        dailyReportRepository.deleteAllByDrillingWell_Id(drillWellId);
     }
 }

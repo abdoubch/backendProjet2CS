@@ -9,4 +9,6 @@ public interface DailyReportRepository extends JpaRepository<DailyReport, Intege
     List<DailyReport> findByDrillingWellId(int drillWellId);
     Optional<DailyReport> findByIdAndDrillingWellId(int reportId, int drillWellId);
     List<DailyReport> findByDrillingWellIdAndPhaseId(int drillingWellId, int phaseId);
+    void deleteAllByDrillingWell_Id(int drillWellId); // méthode de suppression
+    
 }

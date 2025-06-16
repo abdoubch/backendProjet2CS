@@ -39,6 +39,7 @@ public class DrillWellService {
                     existingWell.setActualEndDate(newDrillWell.getActualEndDate());
                     existingWell.setStatus(newDrillWell.getStatus());
                     existingWell.setTotalCost(newDrillWell.getTotalCost());
+                    existingWell.setProgress(newDrillWell.getProgress());
                     existingWell.setType(newDrillWell.getType());
                     existingWell.setActualDay(newDrillWell.getActualDay());
                     existingWell.setActualDay1(newDrillWell.getActualDay1());

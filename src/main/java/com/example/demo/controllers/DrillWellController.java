@@ -47,4 +47,5 @@ public class DrillWellController {
         drillWellService.deleteDrillWell(id);
         return ResponseEntity.noContent().build();
     }
+    
 }
