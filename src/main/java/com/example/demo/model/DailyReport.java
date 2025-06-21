@@ -117,7 +117,7 @@ public class DailyReport {
         this.totalDuration = totalDuration;
     }
 
-    public BigDecimal  getActualDay() {
+    public BigDecimal getActualDay() {
         return actualday;
     }
 

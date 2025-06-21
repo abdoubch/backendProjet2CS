@@ -39,4 +39,15 @@ public class ProblemesService {
     public void deleteProbleme(int id) {
         problemesRepository.deleteById(id);
     }
+
+    public List<Problemes> getProblemesByDailyReportId(int dailyReportId) {
+        return problemesRepository.findByDailyReportId(dailyReportId);
+    }
+
+    public List<Problemes> getProblemesByDrillWellId(int drillWellId) {
+        return problemesRepository.findByDrillWellId(drillWellId);
+    }
+    public void deleteByDailyReportId(int dailyReportId) {
+        problemesRepository.deleteByDailyReportId(dailyReportId);
+    }
 }

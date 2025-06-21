@@ -46,4 +46,19 @@ public class ProblemesController {
         problemesService.deleteProbleme(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/rapport/{dailyReportId}")
+    public List<Problemes> getProblemesByDailyReportId(@PathVariable int dailyReportId) {
+        return problemesService.getProblemesByDailyReportId(dailyReportId);
+    }
+
+    @GetMapping("/drillwell/{id}")
+    public List<Problemes> getProblemesByDrillWell(@PathVariable("id") int drillWellId) {
+        return problemesService.getProblemesByDrillWellId(drillWellId);
+    }
+    @DeleteMapping("/rapport/{dailyReportId}")
+    public ResponseEntity<Void> deleteProblemesByDailyReport(@PathVariable int dailyReportId) {
+        problemesService.deleteByDailyReportId(dailyReportId);
+        return ResponseEntity.noContent().build();
+    }
 }
